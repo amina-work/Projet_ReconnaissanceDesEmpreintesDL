@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder
 image = Image.open('database\\101_1.tif')
 
 #importing the folder with the images
-direct = 'C:\\Users\\DrdrA\\Downloads\\deeplearningprojet-master\\deeplearningprojet-master\\database'
+direct = 'C:\\Users\\DrdrA\\OneDrive\\Desktop\\UNI\\M2\\DeepLearning\\projet\\database'
 
 # Create empty lists for training and testing file paths
 training_files = []
