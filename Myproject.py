@@ -3,13 +3,15 @@ from PIL import Image, ImageOps, ImageFilter  # Import ImageFilter
 import random
 import numpy as np
 import os
-from dask import layers
+from dask import layers #
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras import models
 from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Flatten, MaxPooling2D, Dropout
 from sklearn.preprocessing import LabelEncoder
+from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import to_categorical
 # Open a TIF files
 image = Image.open('database\\101_1.tif')
 
@@ -88,14 +90,37 @@ model.add(Flatten())  # Flatten the output before the Dense layer
 model.add(Dense(2, activation='softmax'))
 model.summary()
 model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
+              loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 #Train the model
-model.fit(X_train, y_train, epochs=5, batch_size=32)
+#model.fit(X_train, y_train, epochs=5, batch_size=32)
 
 # Evaluate the model
-test_loss, test_acc = model.evaluate(X_test, y_test)
+#test_loss, test_acc = model.evaluate(X_test, y_test)
+
+# Convert labels to one-hot encoding
+y_train_one_hot = to_categorical(y_train, num_classes=2)
+y_test_one_hot = to_categorical(y_test, num_classes=2)
+# Create an ImageDataGenerator with augmentation options
+datagen = ImageDataGenerator(
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+#Train the model
+#model.fit(X_train, y_train_one_hot, epochs=5, batch_size=32)
+# Fit the generator on your training data
+datagen.fit(X_train)
+
+# Train the model using augmented data
+model.fit(datagen.flow(X_train, y_train_one_hot, batch_size=32), epochs=5)
+# Evaluate the model
+test_loss, test_acc = model.evaluate(X_test, y_test_one_hot)
 
 print(f'Test accuracy: {test_acc}')
 
